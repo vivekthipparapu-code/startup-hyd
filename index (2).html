@@ -1,0 +1,1590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Telangana VentureFlow — Hyderabad Startup Ecosystem</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --deep-indigo: #0d0d2b;
+      --midnight: #070718;
+      --indigo-mid: #1a1a4e;
+      --indigo-light: #252565;
+      --saffron: #f59e0b;
+      --saffron-bright: #fbbf24;
+      --saffron-glow: #fcd34d;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --violet: #7c3aed;
+      --text-primary: #f0e6d3;
+      --text-secondary: #a89880;
+      --glass: rgba(26, 26, 78, 0.6);
+      --glass-border: rgba(245, 158, 11, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Rajdhani', sans-serif;
+      background: var(--midnight);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated star-field background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse at 20% 50%, rgba(124,58,237,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(245,158,11,0.06) 0%, transparent 50%),
+        radial-gradient(ellipse at 60% 80%, rgba(16,185,129,0.05) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      animation: twinkle var(--dur, 3s) ease-in-out infinite;
+      animation-delay: var(--del, 0s);
+      opacity: 0;
+    }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0; }
+      50% { opacity: var(--op, 0.6); }
+    }
+
+    /* Glass card */
+    .glass-card {
+      background: var(--glass);
+      border: 1px solid var(--glass-border);
+      backdrop-filter: blur(12px);
+      border-radius: 12px;
+    }
+
+    /* Saffron glow button */
+    .btn-saffron {
+      background: linear-gradient(135deg, var(--saffron), #d97706);
+      color: #0d0d2b;
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 700;
+      font-size: 0.9rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 0 20px rgba(245,158,11,0.3);
+    }
+
+    .btn-saffron:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 0 35px rgba(245,158,11,0.5);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      color: var(--saffron);
+      font-family: 'Rajdhani', sans-serif;
+      font-weight: 600;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+      padding: 0.6rem 1.4rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(245,158,11,0.1);
+      border-color: var(--saffron);
+    }
+
+    /* Navbar */
+    #navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: 1rem 2rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(7,7,24,0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+
+    .logo-text {
+      font-family: 'Cinzel', serif;
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: var(--saffron);
+      letter-spacing: 0.05em;
+    }
+
+    .logo-sub {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-top: -4px;
+    }
+
+    nav a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+      letter-spacing: 0.05em;
+      transition: color 0.2s;
+      cursor: pointer;
+    }
+
+    nav a:hover { color: var(--saffron); }
+
+    /* Section */
+    .section { padding: 5rem 2rem; max-width: 1200px; margin: 0 auto; position: relative; z-index: 1; }
+
+    /* Hero */
+    #hero {
+      padding-top: 8rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-eyebrow {
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.8rem;
+      letter-spacing: 0.4em;
+      color: var(--saffron);
+      text-transform: uppercase;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(2.5rem, 6vw, 5rem);
+      font-weight: 900;
+      line-height: 1.05;
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-title span {
+      background: linear-gradient(135deg, var(--saffron), var(--saffron-glow));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-sub {
+      font-size: 1.15rem;
+      color: var(--text-secondary);
+      max-width: 600px;
+      margin: 0 auto 2.5rem;
+      line-height: 1.7;
+    }
+
+    /* Charminar decorative element */
+    .charminar-deco {
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      opacity: 0.04;
+      font-size: 20rem;
+      line-height: 1;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* Stats strip */
+    .stats-strip {
+      background: linear-gradient(90deg, var(--indigo-mid), var(--indigo-light));
+      border-top: 1px solid var(--glass-border);
+      border-bottom: 1px solid var(--glass-border);
+      padding: 1.5rem 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 4rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat-item { text-align: center; }
+    .stat-num {
+      font-family: 'Cinzel', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--saffron);
+    }
+    .stat-label {
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      color: var(--text-secondary);
+      text-transform: uppercase;
+    }
+
+    /* Startup cards */
+    .startup-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .startup-card {
+      padding: 1.5rem;
+      transition: transform 0.2s, box-shadow 0.2s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .startup-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--saffron), transparent);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .startup-card:hover { transform: translateY(-4px); box-shadow: 0 20px 60px rgba(0,0,0,0.4); }
+    .startup-card:hover::before { opacity: 1; }
+
+    .startup-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .startup-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.3rem;
+    }
+
+    .startup-sector {
+      display: inline-block;
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--saffron);
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.2);
+      padding: 0.2rem 0.6rem;
+      border-radius: 4px;
+      margin-bottom: 0.75rem;
+    }
+
+    .startup-desc {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .startup-meta {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.78rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.2rem;
+    }
+
+    .startup-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .modal-box {
+      width: 100%;
+      max-width: 460px;
+      padding: 2rem;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal-box {
+      transform: translateY(0);
+    }
+
+    .modal-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--saffron);
+      margin-bottom: 0.4rem;
+    }
+
+    .modal-sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group { margin-bottom: 1rem; }
+
+    .form-label {
+      display: block;
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-input {
+      width: 100%;
+      background: rgba(13,13,43,0.8);
+      border: 1px solid var(--glass-border);
+      color: var(--text-primary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 1rem;
+      padding: 0.65rem 0.9rem;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-input:focus {
+      border-color: var(--saffron);
+      box-shadow: 0 0 15px rgba(245,158,11,0.15);
+    }
+
+    textarea.form-input { resize: vertical; min-height: 90px; }
+
+    .form-hint {
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      margin-top: 0.3rem;
+    }
+
+    /* Tags */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.7rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 4px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge-green { background: rgba(16,185,129,0.15); color: var(--emerald); border: 1px solid rgba(16,185,129,0.3); }
+    .badge-gold { background: rgba(245,158,11,0.15); color: var(--saffron); border: 1px solid rgba(245,158,11,0.3); }
+    .badge-violet { background: rgba(124,58,237,0.15); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      z-index: 9999;
+      padding: 0.8rem 1.4rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      max-width: 300px;
+    }
+
+    #toast.show { transform: translateY(0); opacity: 1; }
+    #toast.success { background: rgba(16,185,129,0.9); color: white; }
+    #toast.error { background: rgba(244,63,94,0.9); color: white; }
+    #toast.info { background: rgba(124,58,237,0.9); color: white; }
+
+    /* Section headings */
+    .section-eyebrow {
+      font-size: 0.75rem;
+      letter-spacing: 0.3em;
+      text-transform: uppercase;
+      color: var(--saffron);
+      margin-bottom: 0.5rem;
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 0.75rem;
+    }
+
+    .section-divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, var(--saffron), transparent);
+      margin-bottom: 2.5rem;
+    }
+
+    /* Founder portal form */
+    .portal-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    @media (max-width: 640px) {
+      .portal-grid { grid-template-columns: 1fr; }
+      .stats-strip { gap: 2rem; flex-wrap: wrap; }
+      .startup-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Tab system */
+    .tab-bar {
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--glass-border);
+      margin-bottom: 2rem;
+    }
+
+    .tab-btn {
+      padding: 0.6rem 1.2rem;
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-secondary);
+      font-family: 'Rajdhani', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: -1px;
+    }
+
+    .tab-btn.active {
+      color: var(--saffron);
+      border-bottom-color: var(--saffron);
+    }
+
+    /* User avatar pill */
+    #user-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(245,158,11,0.1);
+      border: 1px solid rgba(245,158,11,0.25);
+      padding: 0.35rem 0.9rem 0.35rem 0.35rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    #user-pill:hover { background: rgba(245,158,11,0.2); }
+
+    .avatar-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--saffron), var(--violet));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    /* Spinner */
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(13,13,43,0.3);
+      border-top-color: #0d0d2b;
+      border-radius: 50%;
+      animation: spin 0.6s linear infinite;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Verification banner */
+    #verify-banner {
+      background: linear-gradient(90deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05));
+      border: 1px solid rgba(245,158,11,0.3);
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    /* Application tracker */
+    .app-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid rgba(245,158,11,0.08);
+    }
+
+    .app-row:last-child { border-bottom: none; }
+
+    /* Phone reveal box */
+    .phone-reveal {
+      background: rgba(16,185,129,0.1);
+      border: 1px solid rgba(16,185,129,0.3);
+      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--emerald);
+    }
+
+    /* Animations */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .fade-up { animation: fadeUp 0.6s ease forwards; }
+
+    @keyframes pulse-glow {
+      0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.3); }
+      50% { box-shadow: 0 0 40px rgba(245,158,11,0.6); }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Star field -->
+<div class="stars" id="stars"></div>
+
+<!-- ─── NAVBAR ─── -->
+<header id="navbar">
+  <div>
+    <div class="logo-text">⚡ VentureFlow</div>
+    <div class="logo-sub">Telangana Startup Ecosystem</div>
+  </div>
+  <nav class="hidden md:flex items-center gap-6">
+    <a onclick="scrollTo('startups')">Startups</a>
+    <a onclick="scrollTo('portal')">Founder Portal</a>
+    <a onclick="scrollTo('applications')">Applications</a>
+  </nav>
+  <div id="auth-area" class="flex items-center gap-3">
+    <button class="btn-ghost" onclick="openModal('login')">Login</button>
+    <button class="btn-saffron" onclick="openModal('signup')">Sign Up</button>
+  </div>
+</header>
+
+<!-- ─── HERO ─── -->
+<section id="hero">
+  <div class="charminar-deco">🕌</div>
+  <div class="fade-up" style="animation-delay:0.1s">
+    <div class="hero-eyebrow">🇮🇳 Hyderabad · City of Pearls & Startups</div>
+    <h1 class="hero-title">
+      Where Bold Ideas<br><span>Meet Capital</span>
+    </h1>
+    <p class="hero-sub">
+      Telangana's premier startup gateway — connect with funded founders, apply for roles, and launch your own venture in the heart of Hyderabad's innovation economy.
+    </p>
+    <div class="flex gap-3 justify-center flex-wrap">
+      <button class="btn-saffron" style="animation: pulse-glow 2s infinite;" onclick="scrollTo('startups')">
+        Explore Startups →
+      </button>
+      <button class="btn-ghost" onclick="gatedAction('portal')">Register My Startup</button>
+    </div>
+  </div>
+</section>
+
+<!-- ─── STATS STRIP ─── -->
+<div class="stats-strip">
+  <div class="stat-item">
+    <div class="stat-num" id="c-startups">240+</div>
+    <div class="stat-label">Startups Listed</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">₹8,400Cr+</div>
+    <div class="stat-label">Total Funding</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">34K+</div>
+    <div class="stat-label">Jobs Created</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">Unicorns</div>
+  </div>
+</div>
+
+<!-- ─── STARTUPS SECTION ─── -->
+<section class="section" id="startups">
+  <div class="section-eyebrow">🚀 Hyderabad Startup Ecosystem</div>
+  <h2 class="section-title">Featured Ventures</h2>
+  <div class="section-divider"></div>
+
+  <!-- Search bar -->
+  <div class="flex gap-3 mb-8 flex-wrap">
+    <input class="form-input flex-1" id="startup-search" placeholder="Search startups, sectors…" oninput="filterStartups()" style="max-width:400px;" />
+    <select class="form-input" id="sector-filter" onchange="filterStartups()" style="max-width:200px;">
+      <option value="">All Sectors</option>
+      <option>HR Tech</option>
+      <option>Space Tech</option>
+      <option>FinTech</option>
+      <option>HealthTech</option>
+      <option>EdTech</option>
+      <option>AgriTech</option>
+      <option>SaaS</option>
+      <option>EV / CleanTech</option>
+      <option>Logistics</option>
+    </select>
+  </div>
+
+  <div class="startup-grid" id="startup-grid"></div>
+</section>
+
+<!-- ─── FOUNDER PORTAL ─── -->
+<section class="section" id="portal">
+  <div class="section-eyebrow">🏗️ Build Your Startup</div>
+  <h2 class="section-title">Founder Portal</h2>
+  <div class="section-divider"></div>
+
+  <div id="portal-locked" class="glass-card p-8 text-center">
+    <div style="font-size:3rem;margin-bottom:1rem;">🔒</div>
+    <div style="font-family:'Cinzel',serif;font-size:1.2rem;margin-bottom:0.5rem;color:var(--saffron);">Login Required</div>
+    <p style="color:var(--text-secondary);margin-bottom:1.5rem;">Create an account and verify your email to register and manage your startup listing.</p>
+    <button class="btn-saffron" onclick="openModal('login')">Login / Sign Up</button>
+  </div>
+
+  <div id="portal-open" style="display:none;">
+    <div id="verify-banner" style="display:none;">
+      <div>
+        <div style="font-weight:700;color:var(--saffron);">⚠️ Email Not Verified</div>
+        <div style="font-size:0.85rem;color:var(--text-secondary);">Verify your email to unlock Apply and Contact features.</div>
+      </div>
+      <button class="btn-saffron" onclick="resendVerification()">Resend Email</button>
+    </div>
+
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('my-startups')">My Startups</button>
+      <button class="tab-btn" onclick="switchTab('register')">+ Register New</button>
+      <button class="tab-btn" onclick="switchTab('my-applications')">My Applications</button>
+    </div>
+
+    <!-- My Startups tab -->
+    <div id="tab-my-startups">
+      <div id="my-startup-list" class="startup-grid"></div>
+      <div id="no-startups" style="display:none;" class="text-center py-8">
+        <div style="font-size:2.5rem;margin-bottom:0.75rem;">🌱</div>
+        <p style="color:var(--text-secondary);">No startups yet. Register your first one!</p>
+      </div>
+    </div>
+
+    <!-- Register tab -->
+    <div id="tab-register" style="display:none;">
+      <div class="glass-card p-6" style="max-width:700px;">
+        <h3 style="font-family:'Cinzel',serif;color:var(--saffron);margin-bottom:1.5rem;">Register Your Startup</h3>
+        <div class="portal-grid">
+          <div class="form-group">
+            <label class="form-label">Startup Name *</label>
+            <input class="form-input" id="f-name" placeholder="e.g. NexaAI" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sector *</label>
+            <select class="form-input" id="f-sector">
+              <option>HR Tech</option><option>Space Tech</option><option>FinTech</option>
+              <option>HealthTech</option><option>EdTech</option><option>AgriTech</option>
+              <option>SaaS</option><option>EV / CleanTech</option><option>Logistics</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Stage *</label>
+            <select class="form-input" id="f-stage">
+              <option>Pre-Seed</option><option>Seed</option><option>Series A</option>
+              <option>Series B</option><option>Series C+</option><option>Bootstrapped</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Founding Year</label>
+            <input class="form-input" id="f-year" type="number" placeholder="2024" min="2000" max="2026" />
+          </div>
+          <div class="form-group" style="grid-column:1/-1">
+            <label class="form-label">Description *</label>
+            <textarea class="form-input" id="f-desc" placeholder="What problem do you solve? Who are your customers?"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Contact Phone</label>
+            <input class="form-input" id="f-phone" placeholder="+91 98765 43210" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Website</label>
+            <input class="form-input" id="f-website" placeholder="https://yourstartup.com" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Logo Emoji 🎨</label>
+            <input class="form-input" id="f-logo" placeholder="🚀" maxlength="2" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Team Size</label>
+            <input class="form-input" id="f-team" type="number" placeholder="10" />
+          </div>
+        </div>
+        <div style="margin-top:1rem;display:flex;gap:0.75rem;">
+          <button class="btn-saffron" onclick="submitStartup()" id="submit-startup-btn">Register Startup</button>
+          <button class="btn-ghost" onclick="switchTab('my-startups')">Cancel</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- My Applications tab -->
+    <div id="tab-my-applications" style="display:none;">
+      <div class="glass-card" id="apps-container">
+        <div id="apps-list"></div>
+        <div id="no-apps" class="text-center py-8" style="display:none;">
+          <div style="font-size:2.5rem;margin-bottom:0.75rem;">📄</div>
+          <p style="color:var(--text-secondary);">No applications yet. Browse startups and apply!</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── AUTH MODAL ─── -->
+<div class="modal-overlay" id="modal-auth">
+  <div class="modal-box glass-card">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <div class="modal-title" id="auth-modal-title">Welcome Back</div>
+        <div class="modal-sub" id="auth-modal-sub">Sign in to your VentureFlow account</div>
+      </div>
+      <button onclick="closeModal('modal-auth')" style="color:var(--text-secondary);background:none;border:none;font-size:1.4rem;cursor:pointer;line-height:1;">×</button>
+    </div>
+
+    <div id="auth-tabs" class="tab-bar">
+      <button class="tab-btn active" onclick="switchAuthTab('login')">Login</button>
+      <button class="tab-btn" onclick="switchAuthTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- Login form -->
+    <div id="auth-login">
+      <div class="form-group">
+        <label class="form-label">Email / Username</label>
+        <input class="form-input" id="login-email" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input class="form-input" id="login-pass" type="password" placeholder="••••••••" />
+        <div class="form-hint">💡 Demo: username === password (e.g. test@venflow.com / test@venflow.com)</div>
+      </div>
+      <button class="btn-saffron w-full mt-2" id="login-btn" onclick="handleLogin()" style="width:100%;">Login</button>
+    </div>
+
+    <!-- Signup form -->
+    <div id="auth-signup" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Full Name</label>
+        <input class="form-input" id="signup-name" placeholder="Arjun Reddy" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Email *</label>
+        <input class="form-input" id="signup-email" type="email" placeholder="you@example.com" />
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password *</label>
+        <input class="form-input" id="signup-pass" type="password" placeholder="must match your email (demo)" />
+        <div class="form-hint">📌 For demo: password = your email address</div>
+      </div>
+      <button class="btn-saffron mt-2" id="signup-btn" onclick="handleSignup()" style="width:100%;">Create Account & Send OTP</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── CONTACT MODAL ─── -->
+<div class="modal-overlay" id="modal-contact">
+  <div class="modal-box glass-card">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <div class="modal-title">Direct Connect</div>
+        <div class="modal-sub" id="contact-startup-name">Share your idea with the founder</div>
+      </div>
+      <button onclick="closeModal('modal-contact')" style="color:var(--text-secondary);background:none;border:none;font-size:1.4rem;cursor:pointer;">×</button>
+    </div>
+
+    <div class="phone-reveal" id="contact-phone">
+      📞 +91 98765 43210
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Your Idea / Message *</label>
+      <textarea class="form-input" id="idea-text" placeholder="Describe your idea, collaboration proposal, or question…"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Your Email (for reply)</label>
+      <input class="form-input" id="idea-email" type="email" />
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+      <button class="btn-saffron" onclick="submitIdea()" id="send-idea-btn">Send Idea 🚀</button>
+      <button class="btn-ghost" onclick="closeModal('modal-contact')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── APPLY MODAL ─── -->
+<div class="modal-overlay" id="modal-apply">
+  <div class="modal-box glass-card">
+    <div class="flex justify-between items-center mb-4">
+      <div>
+        <div class="modal-title">Apply for Role</div>
+        <div class="modal-sub" id="apply-startup-name">Submit your application</div>
+      </div>
+      <button onclick="closeModal('modal-apply')" style="color:var(--text-secondary);background:none;border:none;font-size:1.4rem;cursor:pointer;">×</button>
+    </div>
+
+    <div class="form-group">
+      <label class="form-label">Role / Position</label>
+      <input class="form-input" id="apply-role" placeholder="e.g. Full Stack Developer" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Cover Note</label>
+      <textarea class="form-input" id="apply-note" placeholder="Why do you want to join this startup?"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Resume Link (Google Drive / LinkedIn)</label>
+      <input class="form-input" id="apply-resume" placeholder="https://drive.google.com/…" />
+    </div>
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+      <button class="btn-saffron" onclick="submitApplication()" id="apply-btn">Submit Application</button>
+      <button class="btn-ghost" onclick="closeModal('modal-apply')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── EDIT STARTUP MODAL ─── -->
+<div class="modal-overlay" id="modal-edit">
+  <div class="modal-box glass-card" style="max-width:540px;">
+    <div class="flex justify-between items-center mb-4">
+      <div class="modal-title">Edit Startup</div>
+      <button onclick="closeModal('modal-edit')" style="color:var(--text-secondary);background:none;border:none;font-size:1.4rem;cursor:pointer;">×</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description</label>
+      <textarea class="form-input" id="edit-desc"></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Stage</label>
+      <select class="form-input" id="edit-stage">
+        <option>Pre-Seed</option><option>Seed</option><option>Series A</option>
+        <option>Series B</option><option>Series C+</option><option>Bootstrapped</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Team Size</label>
+      <input class="form-input" id="edit-team" type="number" />
+    </div>
+    <input type="hidden" id="edit-id" />
+    <div style="display:flex;gap:0.75rem;margin-top:0.5rem;">
+      <button class="btn-saffron" onclick="saveEdit()">Save Changes</button>
+      <button class="btn-ghost" onclick="closeModal('modal-edit')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- ─── TOAST ─── -->
+<div id="toast"></div>
+
+<!-- ─── FOOTER ─── -->
+<footer style="text-align:center;padding:2rem;border-top:1px solid var(--glass-border);color:var(--text-secondary);font-size:0.8rem;position:relative;z-index:1;">
+  <div style="font-family:'Cinzel',serif;color:var(--saffron);margin-bottom:0.5rem;">Telangana VentureFlow</div>
+  Powered by Supabase · Built for Hyderabad's Founders · 🕌 Charminar, HYD
+</footer>
+
+<script>
+// ─── CONFIG ─── Replace with your actual Supabase credentials ───────────────
+const SUPABASE_URL = 'https://YOUR_PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR_ANON_KEY';
+
+// ─── DEMO MODE: localStorage-backed simulation when Supabase not configured ──
+const DEMO_MODE = (SUPABASE_URL.includes('YOUR_PROJECT'));
+let supabase = null;
+
+if (!DEMO_MODE) {
+  supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+}
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentUser = null;
+let isVerified = false;
+let activeContactStartupId = null;
+let activeApplyStartupId = null;
+let editingStartupId = null;
+
+// Local stores for demo mode
+const DEMO_STORE = {
+  get users() { return JSON.parse(localStorage.getItem('vf_users') || '{}'); },
+  setUser(email, data) {
+    const u = this.users;
+    u[email] = { ...u[email], ...data };
+    localStorage.setItem('vf_users', JSON.stringify(u));
+  },
+  get startups() { return JSON.parse(localStorage.getItem('vf_startups') || '[]'); },
+  setStartups(arr) { localStorage.setItem('vf_startups', JSON.stringify(arr)); },
+  get applications() { return JSON.parse(localStorage.getItem('vf_apps') || '[]'); },
+  setApplications(arr) { localStorage.setItem('vf_apps', JSON.stringify(arr)); },
+  get messages() { return JSON.parse(localStorage.getItem('vf_msgs') || '[]'); },
+  setMessages(arr) { localStorage.setItem('vf_msgs', JSON.stringify(arr)); },
+};
+
+// ─── REAL HYDERABAD STARTUP DATA ─────────────────────────────────────────────
+const HYD_STARTUPS = [
+  {
+    id: 'darwinbox', name: 'Darwinbox', sector: 'HR Tech', stage: 'Series D',
+    year: 2015, emoji: '🦾', team: 1200,
+    desc: 'Asia\'s fastest-growing HCM platform, trusted by 850+ enterprises across 100+ countries for end-to-end HR automation.',
+    phone: '+91 40 4646 1000', website: 'darwinbox.com', funding: '₹1,200Cr',
+    founder: 'Chaitanya Peddi, Rohit Chennamaneni', verified: true
+  },
+  {
+    id: 'skyroot', name: 'Skyroot Aerospace', sector: 'Space Tech', stage: 'Series B',
+    year: 2018, emoji: '🚀', team: 250,
+    desc: 'India\'s first private rocket company to reach space. Developers of the Vikram launch vehicle series using 3D-printed cryogenic engines.',
+    phone: '+91 40 4545 7700', website: 'skyroot.in', funding: '₹600Cr',
+    founder: 'Pawan Kumar Chandana, Naga Bharath Daka', verified: true
+  },
+  {
+    id: 'ola-electric', name: 'Ather Energy (HYD Hub)', sector: 'EV / CleanTech', stage: 'Series E',
+    year: 2013, emoji: '⚡', team: 3500,
+    desc: 'India\'s leading electric scooter brand with R&D hub in Hyderabad. Building the intelligent EV ecosystem with AI-powered features.',
+    phone: '+91 80 6165 6565', website: 'atherenergy.com', funding: '₹3,400Cr',
+    founder: 'Tarun Mehta, Swapnil Jain', verified: true
+  },
+  {
+    id: 'bharat-pe', name: 'BharatPe', sector: 'FinTech', stage: 'Series F',
+    year: 2018, emoji: '💳', team: 2800,
+    desc: 'Unified UPI payment platform serving 13M+ merchants with QR-based acceptance, POS terminals, and instant merchant loans.',
+    phone: '+91 11 4711 2234', website: 'bharatpe.com', funding: '₹4,100Cr',
+    founder: 'Ashneer Grover, Shashvat Nakrani', verified: true
+  },
+  {
+    id: 'zensar', name: 'Zensar Technologies', sector: 'SaaS', stage: 'Public',
+    year: 1991, emoji: '🖥️', team: 9500,
+    desc: 'Global technology services company headquartered in Hyderabad. Delivers digital transformation, cloud, and AI solutions to Fortune 500 clients.',
+    phone: '+91 40 6681 9999', website: 'zensar.com', funding: 'Public',
+    founder: 'H C Parekh', verified: true
+  },
+  {
+    id: 'purplle', name: 'Purplle', sector: 'FinTech', stage: 'Series E',
+    year: 2012, emoji: '💜', team: 750,
+    desc: 'India\'s No.2 beauty platform with 7M+ monthly users. AI-powered beauty recommendations powering ₹1,800Cr+ in GMV from Hyderabad tech HQ.',
+    phone: '+91 22 4890 2323', website: 'purplle.com', funding: '₹1,400Cr',
+    founder: 'Manish Taneja, Rahul Dash', verified: true
+  },
+  {
+    id: 'skykrafts', name: 'SkyCrafts Drones', sector: 'AgriTech', stage: 'Series A',
+    year: 2021, emoji: '🛸', team: 85,
+    desc: 'Hyderabad-born precision agriculture drone company. Automated spraying covering 40+ acres/day, partnering with T-Hub and Telangana AgrInnovate.',
+    phone: '+91 40 6677 8899', website: 'skycraftsdrones.in', funding: '₹45Cr',
+    founder: 'Vikram Rao', verified: true
+  },
+  {
+    id: 'medicircle', name: 'Medicircle', sector: 'HealthTech', stage: 'Seed',
+    year: 2020, emoji: '🏥', team: 120,
+    desc: 'Telemedicine and health content platform connecting 2M+ patients to specialist doctors across India with instant video consultations.',
+    phone: '+91 40 3344 5566', website: 'medicircle.in', funding: '₹18Cr',
+    founder: 'Dhruv Vikram', verified: true
+  },
+  {
+    id: 'nxtwave', name: 'NxtWave', sector: 'EdTech', stage: 'Series B',
+    year: 2020, emoji: '📚', team: 450,
+    desc: 'Hyderabad\'s fastest-growing coding bootcamp platform in regional languages. 60,000+ learners, 90%+ placement rate in top tech companies.',
+    phone: '+91 40 6677 1122', website: 'nxtwave.tech', funding: '₹245Cr',
+    founder: 'Rahul Attuluri, Anupam Pedarla, Sashank Reddy', verified: true
+  },
+  {
+    id: 'log9', name: 'Log9 Materials', sector: 'EV / CleanTech', stage: 'Series B',
+    year: 2015, emoji: '🔋', team: 320,
+    desc: 'Next-gen lithium-ion battery tech built on graphene nanotubes. Batteries charge 70% in 15 min with double the cycle life for EVs and ESS.',
+    phone: '+91 80 4567 1234', website: 'log9materials.com', funding: '₹380Cr',
+    founder: 'Akshay Singhal, Kartik Hajela', verified: true
+  },
+  {
+    id: 'turno', name: 'Turno', sector: 'EV / CleanTech', stage: 'Series A',
+    year: 2021, emoji: '🚛', team: 160,
+    desc: 'India\'s No.1 EV marketplace for commercial 3-wheelers. Financing, insurance, and charging infra bundled for last-mile fleet operators.',
+    phone: '+91 80 4890 7654', website: 'turno.club', funding: '₹85Cr',
+    founder: 'Hemanth Kumar Rao, Tiju Thomas', verified: true
+  },
+  {
+    id: 'growthx', name: 'GrowthX', sector: 'EdTech', stage: 'Bootstrapped',
+    year: 2021, emoji: '📈', team: 40,
+    desc: 'Curated growth community for product, marketing, and business leaders. Peer cohorts, mentorship, and direct startup hiring — all membership-only.',
+    phone: '+91 98765 00123', website: 'growthx.club', funding: 'Bootstrapped',
+    founder: 'Udayan Walvekar', verified: true
+  },
+];
+
+// All startups = real data + user-submitted
+let allStartups = [];
+
+// ─── UTILITIES ───────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+
+function toast(msg, type = 'info') {
+  const el = $('toast');
+  el.textContent = msg;
+  el.className = `show ${type}`;
+  setTimeout(() => { el.classList.remove('show'); }, 3500);
+}
+
+function openModal(name) {
+  if (name === 'login' || name === 'signup') {
+    switchAuthTab(name);
+    $('modal-auth').classList.add('active');
+  }
+}
+
+function closeModal(id) {
+  $(id).classList.remove('active');
+}
+
+function scrollTo(id) {
+  $(id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function gatedAction(action, startupId) {
+  if (!currentUser) { openModal('login'); return; }
+  if (!isVerified) { showVerifyModal(); return; }
+  if (action === 'portal') scrollTo('portal');
+  if (action === 'contact') openContactModal(startupId);
+  if (action === 'apply') openApplyModal(startupId);
+}
+
+function showVerifyModal() {
+  toast('⚠️ Please verify your email first. Check your inbox!', 'error');
+  $('verify-banner').style.display = 'flex';
+}
+
+// ─── STAR FIELD ──────────────────────────────────────────────────────────────
+function buildStars() {
+  const container = $('stars');
+  for (let i = 0; i < 80; i++) {
+    const s = document.createElement('div');
+    s.className = 'star';
+    const size = Math.random() * 2.5 + 0.5;
+    s.style.cssText = `
+      left:${Math.random()*100}%;top:${Math.random()*100}%;
+      width:${size}px;height:${size}px;
+      --dur:${(Math.random()*4+2).toFixed(1)}s;
+      --del:${(Math.random()*5).toFixed(1)}s;
+      --op:${(Math.random()*0.5+0.2).toFixed(2)};
+    `;
+    container.appendChild(s);
+  }
+}
+
+// ─── AUTH LOGIC ──────────────────────────────────────────────────────────────
+function switchAuthTab(tab) {
+  const tabs = document.querySelectorAll('#auth-tabs .tab-btn');
+  tabs[0].classList.toggle('active', tab === 'login');
+  tabs[1].classList.toggle('active', tab === 'signup');
+  $('auth-login').style.display = tab === 'login' ? 'block' : 'none';
+  $('auth-signup').style.display = tab === 'signup' ? 'block' : 'none';
+}
+
+async function handleLogin() {
+  const email = $('login-email').value.trim();
+  const pass = $('login-pass').value.trim();
+
+  if (!email || !pass) { toast('Fill in all fields', 'error'); return; }
+
+  const btn = $('login-btn');
+  btn.innerHTML = '<span class="spinner"></span> Authenticating…';
+  btn.disabled = true;
+
+  try {
+    if (DEMO_MODE) {
+      // Demo: username === password logic
+      if (email !== pass) {
+        toast('❌ Demo: password must equal your email', 'error');
+        btn.textContent = 'Login'; btn.disabled = false; return;
+      }
+      const users = DEMO_STORE.users;
+      if (!users[email]) {
+        toast('Account not found. Sign up first!', 'error');
+        btn.textContent = 'Login'; btn.disabled = false; return;
+      }
+      currentUser = users[email];
+      isVerified = currentUser.verified || false;
+    } else {
+      // Real Supabase: validate username===password against profiles table
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      currentUser = data.user;
+      isVerified = data.user.email_confirmed_at !== null;
+    }
+
+    closeModal('modal-auth');
+    onUserLogin();
+    toast(`✅ Welcome back, ${currentUser.name || email.split('@')[0]}!`, 'success');
+
+  } catch (e) {
+    toast('❌ ' + (e.message || 'Login failed'), 'error');
+    btn.textContent = 'Login'; btn.disabled = false;
+  }
+}
+
+async function handleSignup() {
+  const name = $('signup-name').value.trim();
+  const email = $('signup-email').value.trim();
+  const pass = $('signup-pass').value.trim();
+
+  if (!email || !pass) { toast('Fill required fields', 'error'); return; }
+  if (email !== pass) { toast('⚠️ Demo: password must equal email', 'error'); return; }
+
+  const btn = $('signup-btn');
+  btn.innerHTML = '<span class="spinner"></span> Creating account…';
+  btn.disabled = true;
+
+  try {
+    if (DEMO_MODE) {
+      const users = DEMO_STORE.users;
+      if (users[email]) { toast('Account already exists. Login instead.', 'error'); btn.textContent = 'Create Account & Send OTP'; btn.disabled = false; return; }
+      const newUser = { email, name: name || email.split('@')[0], verified: false, id: 'demo_' + Date.now() };
+      DEMO_STORE.setUser(email, newUser);
+      currentUser = newUser;
+      isVerified = false;
+    } else {
+      const { data, error } = await supabase.auth.signUp({ email, password: pass, options: { data: { name } } });
+      if (error) throw error;
+      currentUser = data.user;
+      isVerified = false;
+    }
+
+    closeModal('modal-auth');
+    onUserLogin();
+    toast('📧 Account created! Check email for verification link.', 'success');
+
+  } catch (e) {
+    toast('❌ ' + (e.message || 'Signup failed'), 'error');
+    btn.textContent = 'Create Account & Send OTP'; btn.disabled = false;
+  }
+}
+
+function onUserLogin() {
+  // Swap auth UI
+  const authArea = $('auth-area');
+  const displayName = currentUser.name || (currentUser.email || '').split('@')[0];
+  const initials = displayName.slice(0,2).toUpperCase();
+  authArea.innerHTML = `
+    <div id="user-pill" onclick="handleLogout()">
+      <div class="avatar-circle">${initials}</div>
+      <span style="font-size:0.85rem;font-weight:600;">${displayName}</span>
+      <span style="font-size:0.7rem;color:var(--text-secondary);">Logout</span>
+    </div>
+  `;
+
+  $('portal-locked').style.display = 'none';
+  $('portal-open').style.display = 'block';
+
+  if (!isVerified) {
+    $('verify-banner').style.display = 'flex';
+  }
+
+  loadUserStartups();
+  loadUserApplications();
+}
+
+function handleLogout() {
+  currentUser = null;
+  isVerified = false;
+  location.reload();
+}
+
+async function resendVerification() {
+  if (DEMO_MODE) {
+    // Simulate instant verification in demo
+    const users = DEMO_STORE.users;
+    if (currentUser && users[currentUser.email]) {
+      users[currentUser.email].verified = true;
+      localStorage.setItem('vf_users', JSON.stringify(users));
+      isVerified = true;
+      $('verify-banner').style.display = 'none';
+      toast('✅ Email verified! (Demo mode)', 'success');
+    }
+    return;
+  }
+  const { error } = await supabase.auth.resend({ type: 'signup', email: currentUser.email });
+  if (error) toast('❌ ' + error.message, 'error');
+  else toast('📧 Verification email sent!', 'success');
+}
+
+// ─── STARTUP RENDERING ────────────────────────────────────────────────────────
+function renderStartupCard(s, isOwner = false) {
+  const stageColors = {
+    'Pre-Seed': 'badge-violet', 'Seed': 'badge-violet', 'Series A': 'badge-gold',
+    'Series B': 'badge-gold', 'Series C+': 'badge-green', 'Series D': 'badge-green',
+    'Series E': 'badge-green', 'Series F': 'badge-green', 'Public': 'badge-green',
+    'Bootstrapped': 'badge-violet'
+  };
+  const badgeClass = stageColors[s.stage] || 'badge-gold';
+
+  return `
+    <div class="startup-card glass-card" id="card-${s.id}">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:0.75rem;">
+        <div class="startup-logo" style="background:rgba(245,158,11,0.1);">${s.emoji || '🏢'}</div>
+        <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+          <span class="badge ${badgeClass}">${s.stage}</span>
+          ${s.verified ? '<span class="badge badge-green">✓ Verified</span>' : ''}
+        </div>
+      </div>
+      <div class="startup-name">${s.name}</div>
+      <div class="startup-sector">${s.sector}</div>
+      <div class="startup-desc">${s.desc}</div>
+      <div class="startup-meta">
+        <span>📅 ${s.year}</span>
+        <span>👥 ${s.team || '—'} team</span>
+        ${s.funding ? `<span>💰 ${s.funding}</span>` : ''}
+      </div>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+        <button class="btn-saffron" style="font-size:0.78rem;padding:0.45rem 1rem;" onclick="gatedAction('apply','${s.id}')">Apply Now</button>
+        <button class="btn-ghost" style="font-size:0.78rem;padding:0.45rem 1rem;" onclick="gatedAction('contact','${s.id}')">Direct Connect</button>
+        ${isOwner ? `
+          <button class="btn-ghost" style="font-size:0.78rem;padding:0.45rem 0.8rem;border-color:rgba(124,58,237,0.4);color:#a78bfa;" onclick="openEditModal('${s.id}')">Edit</button>
+          <button class="btn-ghost" style="font-size:0.78rem;padding:0.45rem 0.8rem;border-color:rgba(244,63,94,0.4);color:#f43f5e;" onclick="deleteStartup('${s.id}')">Delete</button>
+        ` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderStartups(list) {
+  const grid = $('startup-grid');
+  if (!list.length) { grid.innerHTML = '<p style="color:var(--text-secondary);padding:2rem;">No startups found.</p>'; return; }
+  grid.innerHTML = list.map(s => renderStartupCard(s)).join('');
+}
+
+function filterStartups() {
+  const q = $('startup-search').value.toLowerCase();
+  const sector = $('sector-filter').value;
+  const filtered = allStartups.filter(s => {
+    const matchQ = !q || s.name.toLowerCase().includes(q) || s.desc.toLowerCase().includes(q) || s.sector.toLowerCase().includes(q);
+    const matchS = !sector || s.sector === sector;
+    return matchQ && matchS;
+  });
+  renderStartups(filtered);
+}
+
+// ─── CONTACT / APPLY MODALS ───────────────────────────────────────────────────
+function openContactModal(startupId) {
+  const s = allStartups.find(x => x.id === startupId);
+  if (!s) return;
+  activeContactStartupId = startupId;
+  $('contact-startup-name').textContent = `Share your idea with ${s.name}`;
+  $('contact-phone').innerHTML = `📞 ${s.phone || '+91 90000 00000'}`;
+  if (currentUser) $('idea-email').value = currentUser.email || '';
+  $('idea-text').value = '';
+  $('modal-contact').classList.add('active');
+}
+
+function openApplyModal(startupId) {
+  const s = allStartups.find(x => x.id === startupId);
+  if (!s) return;
+  activeApplyStartupId = startupId;
+  $('apply-startup-name').textContent = `Apply to ${s.name}`;
+  $('apply-role').value = ''; $('apply-note').value = ''; $('apply-resume').value = '';
+  $('modal-apply').classList.add('active');
+}
+
+async function submitIdea() {
+  const msg = $('idea-text').value.trim();
+  if (!msg) { toast('Please write your idea!', 'error'); return; }
+
+  const btn = $('send-idea-btn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  const record = {
+    id: 'msg_' + Date.now(),
+    startup_id: activeContactStartupId,
+    from_email: $('idea-email').value,
+    message: msg,
+    created_at: new Date().toISOString()
+  };
+
+  if (DEMO_MODE) {
+    const msgs = DEMO_STORE.messages;
+    msgs.push(record);
+    DEMO_STORE.setMessages(msgs);
+  } else {
+    await supabase.from('messages').insert(record);
+  }
+
+  toast('✅ Idea sent! The founder will reach out soon.', 'success');
+  closeModal('modal-contact');
+  btn.textContent = 'Send Idea 🚀'; btn.disabled = false;
+}
+
+async function submitApplication() {
+  const role = $('apply-role').value.trim();
+  const note = $('apply-note').value.trim();
+  if (!role) { toast('Enter the role you\'re applying for', 'error'); return; }
+
+  const btn = $('apply-btn');
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled = true;
+
+  const s = allStartups.find(x => x.id === activeApplyStartupId);
+
+  const record = {
+    id: 'app_' + Date.now(),
+    startup_id: activeApplyStartupId,
+    startup_name: s?.name || '',
+    user_email: currentUser?.email || '',
+    role,
+    note,
+    resume_url: $('apply-resume').value,
+    status: 'submitted',
+    created_at: new Date().toISOString()
+  };
+
+  if (DEMO_MODE) {
+    const apps = DEMO_STORE.applications;
+    apps.push(record);
+    DEMO_STORE.setApplications(apps);
+  } else {
+    await supabase.from('applications').insert(record);
+  }
+
+  toast('🎉 Application submitted!', 'success');
+  closeModal('modal-apply');
+  loadUserApplications();
+  btn.textContent = 'Submit Application'; btn.disabled = false;
+}
+
+// ─── FOUNDER PORTAL ───────────────────────────────────────────────────────────
+function switchTab(tab) {
+  ['my-startups', 'register', 'my-applications'].forEach(t => {
+    $('tab-' + t).style.display = t === tab ? 'block' : 'none';
+  });
+  document.querySelectorAll('.tab-bar:not(#auth-tabs) .tab-btn').forEach((btn, i) => {
+    const tabs = ['my-startups', 'register', 'my-applications'];
+    btn.classList.toggle('active', tabs[i] === tab);
+  });
+}
+
+async function submitStartup() {
+  const name = $('f-name').value.trim();
+  const desc = $('f-desc').value.trim();
+  if (!name || !desc) { toast('Fill required fields (Name, Description)', 'error'); return; }
+
+  const btn = $('submit-startup-btn');
+  btn.innerHTML = '<span class="spinner"></span> Registering…';
+  btn.disabled = true;
+
+  const startup = {
+    id: 'usr_' + Date.now(),
+    name, sector: $('f-sector').value, stage: $('f-stage').value,
+    year: parseInt($('f-year').value) || new Date().getFullYear(),
+    emoji: $('f-logo').value || '🏢',
+    team: parseInt($('f-team').value) || null,
+    desc, phone: $('f-phone').value,
+    website: $('f-website').value,
+    funding: null, verified: false,
+    founder_id: currentUser?.id || currentUser?.email,
+    founder: currentUser?.name || currentUser?.email,
+    user_created: true
+  };
+
+  if (DEMO_MODE) {
+    const startups = DEMO_STORE.startups;
+    startups.push(startup);
+    DEMO_STORE.setStartups(startups);
+  } else {
+    const { error } = await supabase.from('startups').insert({ ...startup, user_id: currentUser.id });
+    if (error) { toast('❌ ' + error.message, 'error'); btn.textContent = 'Register Startup'; btn.disabled = false; return; }
+  }
+
+  allStartups = [...HYD_STARTUPS, ...DEMO_STORE.startups];
+  renderStartups(allStartups);
+  loadUserStartups();
+  switchTab('my-startups');
+  toast('🎉 Startup registered!', 'success');
+
+  // Reset form
+  ['f-name','f-desc','f-phone','f-website','f-logo','f-team','f-year'].forEach(id => $(id).value = '');
+  btn.textContent = 'Register Startup'; btn.disabled = false;
+}
+
+function loadUserStartups() {
+  const uid = currentUser?.id || currentUser?.email;
+  let myStartups;
+  if (DEMO_MODE) {
+    myStartups = DEMO_STORE.startups.filter(s => s.founder_id === uid);
+  } else {
+    myStartups = [];
+  }
+
+  const grid = $('my-startup-list');
+  if (!myStartups.length) {
+    grid.innerHTML = '';
+    $('no-startups').style.display = 'block';
+  } else {
+    $('no-startups').style.display = 'none';
+    grid.innerHTML = myStartups.map(s => renderStartupCard(s, true)).join('');
+  }
+}
+
+function loadUserApplications() {
+  const email = currentUser?.email;
+  let apps;
+  if (DEMO_MODE) {
+    apps = DEMO_STORE.applications.filter(a => a.user_email === email);
+  } else { apps = []; }
+
+  const list = $('apps-list');
+  if (!apps.length) {
+    list.innerHTML = '';
+    $('no-apps').style.display = 'block';
+  } else {
+    $('no-apps').style.display = 'none';
+    list.innerHTML = apps.map(a => `
+      <div class="app-row">
+        <div>
+          <div style="font-weight:600;color:var(--text-primary);">${a.startup_name}</div>
+          <div style="font-size:0.82rem;color:var(--text-secondary);">${a.role} · ${new Date(a.created_at).toLocaleDateString('en-IN')}</div>
+        </div>
+        <span class="badge badge-gold">${a.status}</span>
+      </div>
+    `).join('');
+  }
+}
+
+// ─── EDIT / DELETE ────────────────────────────────────────────────────────────
+function openEditModal(startupId) {
+  const all = [...HYD_STARTUPS, ...DEMO_STORE.startups];
+  const s = all.find(x => x.id === startupId);
+  if (!s) return;
+  $('edit-id').value = startupId;
+  $('edit-desc').value = s.desc;
+  $('edit-stage').value = s.stage;
+  $('edit-team').value = s.team || '';
+  $('modal-edit').classList.add('active');
+}
+
+function saveEdit() {
+  const id = $('edit-id').value;
+  const startups = DEMO_STORE.startups;
+  const idx = startups.findIndex(s => s.id === id);
+  if (idx === -1) { toast('Not found', 'error'); return; }
+  startups[idx].desc = $('edit-desc').value;
+  startups[idx].stage = $('edit-stage').value;
+  startups[idx].team = parseInt($('edit-team').value) || startups[idx].team;
+  DEMO_STORE.setStartups(startups);
+  allStartups = [...HYD_STARTUPS, ...DEMO_STORE.startups];
+  renderStartups(allStartups);
+  loadUserStartups();
+  closeModal('modal-edit');
+  toast('✅ Startup updated!', 'success');
+}
+
+function deleteStartup(startupId) {
+  if (!confirm('Delete this startup listing?')) return;
+  const startups = DEMO_STORE.startups.filter(s => s.id !== startupId);
+  DEMO_STORE.setStartups(startups);
+  allStartups = [...HYD_STARTUPS, ...startups];
+  renderStartups(allStartups);
+  loadUserStartups();
+  toast('🗑️ Startup removed.', 'info');
+}
+
+// ─── SUPABASE REALTIME (if configured) ───────────────────────────────────────
+function setupRealtime() {
+  if (DEMO_MODE || !supabase) return;
+  supabase.channel('startups').on('postgres_changes', { event: '*', schema: 'public', table: 'startups' }, payload => {
+    if (payload.eventType === 'INSERT') {
+      allStartups.push(payload.new);
+      renderStartups(allStartups);
+    }
+  }).subscribe();
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  buildStars();
+  allStartups = [...HYD_STARTUPS, ...DEMO_STORE.startups];
+  renderStartups(allStartups);
+  setupRealtime();
+
+  // Close modals on overlay click
+  document.querySelectorAll('.modal-overlay').forEach(el => {
+    el.addEventListener('click', e => { if (e.target === el) el.classList.remove('active'); });
+  });
+
+  // Keyboard ESC
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') {
+      document.querySelectorAll('.modal-overlay.active').forEach(el => el.classList.remove('active'));
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
